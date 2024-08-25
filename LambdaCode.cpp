@@ -9,9 +9,9 @@ enum class TT {
 	Undef = 0,
 	Var = 1,
 	Const = 2,
-	Func = 3,
-	newFunc = 4,
-	nameFunc = 5,
+	nameFunc = 3,
+	Func = 4,
+	newFunc = 5,
 	setFunc = 6
 };
 
@@ -33,13 +33,13 @@ class mToken : public mTerm{
 class Func : public mTerm{
 	public:
 		static string setName = "";
-		vector<mTerm*> args;
+		vector<mTerm*> fargs;
 		mToken body;
-		Func(string name, vector<mTerm*> args, mToken body) : mTerm(name), args(args), body(body) {};
+		Func(string name, vector<mTerm> args, mToken body) : mTerm(name), fargs(args), body(body) {};
 		string call(vector<mTerm*> args);
 };
 
-vector<mToken> lexer(string code) {
+vector<mToken> lexer(string code) {//Here will be code.
 	vector<mToken> res;
 	string word = "";
 	TT type = TT::Undef;
@@ -55,7 +55,7 @@ vector<mToken> lexer(string code) {
 	return res;
 }
 
-mToken parse(vector<mToken> code) {
+mToken parse(vector<mToken> code) {//Here will be code.
 	for (mToken i : code) {
 		
 	}
@@ -63,13 +63,17 @@ mToken parse(vector<mToken> code) {
 	return res;
 }
 
-mToken* put_args(Func* f, vector<mTerm*> args) {
-	for (mTerm) {
-		
+mToken* put_args(Func* f, *vector<mTerm> args) {
+	map<mTerm, mTerm> replace;
+	for (int i = 0; i < f->args.size(); ++i) {
+		replace[f->fargs[i].name] = (*args)[i].name;
 	}
+	mToken new_body = f->body;
+	//Here will be code for replacing names of arguments with args.
+	return new_body;
 }
 
-void run(mToken* token, vector<Func>* funcs) {
+mToken run(mToken* token, vector<Func>* funcs) {
 	switch(token->type){
 		case TT::Func:
 			token = static_cast<Func*>(token);
@@ -85,24 +89,22 @@ void run(mToken* token, vector<Func>* funcs) {
 				else
 					a = run(&a, funcs);
 			}
-			new_token = put_args(token, token->args); // It's token, in which args was put on their places.
-			run(put_args(new_token->body, token->args), funcs);
-			delete new_token;
+			new_body = put_args(token, token->args); // It's body, in which args was put on their places
+			return run(new_body, funcs);
 		case TT::newFunc:
-			if (token->args[0] == "set") {
-				(*funcs).push_back(Func(Func::setName, token->args[1], token->args[2]));
-			}
-			else {
-				(*funcs).push_back(Func(token->args[0], token->args[1], token->args[2]));
-			}
-			cout "#New func was made";
+			string name = (token->args[0] == "set") ? Func::setName : token->args[0];
+			(*funcs).push_back(Func(name, token->args[1], token->args[2]));
+			
+			cout << "#New func was made" << endl;
+			return mToken(name, TT::nameFunc);
 		case TT::setFunc:
 			Func::setName = token->args[0];
 			run(static_cast<mToken*>(&(token->args[1])), funcs);
-			
-			cout << "#New func was set";
+			Func::setName = "";
+			cout << "#New func was set" << endl;
+			return mTerm("#N");
 		default:
-			cout << token->name;
+			return token;
 	}
 }
 
@@ -116,7 +118,9 @@ int main() {
 		getline(cin, code);
 		vector<mToken> lexed = lexer(code);
 		mToken parsed = parse(lexed);
-		run(&parsed);
+		mTerm res = run(&parsed);
+		if (res.name != "#N"){
+			cout << res.name;
 	}
 	return 0;
 }
