@@ -98,7 +98,7 @@ void run(mToken* token, vector<Func>* funcs) {
 			cout "#New func was made";
 		case TT::setFunc:
 			Func::setName = token->args[0];
-			run(token->args[1], funcs);
+			run(static_cast<mToken*>(&(token->args[1])), funcs);
 			
 			cout << "#New func was set";
 		default:
