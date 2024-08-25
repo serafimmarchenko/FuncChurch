@@ -26,7 +26,7 @@ map<string, mTerm*> terms;
 class mToken : public mTerm{
 	public:
 		TT type;
-		vector<mTerm*> args;
+		vector<mTerm> args;
 		mToken(string name, TT type) : mTerm::mTerm(name), type(type) {};
 };
 
@@ -64,24 +64,26 @@ mToken parse(vector<mToken> code) {
 }
 
 mToken* put_args(Func* f, vector<mTerm*> args) {
-	
+	for (mTerm) {
+		
+	}
 }
 
 void run(mToken* token, vector<Func>* funcs) {
 	switch(token->type){
 		case TT::Func:
 			token = static_cast<Func*>(token);
-			for(mTerm* a : token->args) {
-				if (token->type = TT::Var)
+			for(mTerm& a : token->args) {
+				if (a.type = TT::Var)
 					continue;
-				else if (token->type = TT::Const)
+				else if (a.type = TT::Const)
 					continue;
-				else if (token->type = TT::Func)
+				else if (a.type = TT::Func)
 					continue;
-				else if (token->type = TT::nameFunc)
+				else if (a.type = TT::nameFunc)
 					continue;
 				else
-					*a = run(a, funcs);
+					a = run(&a, funcs);
 			}
 			new_token = put_args(token, token->args); // It's token, in which args was put on their places.
 			run(put_args(new_token->body, token->args), funcs);
