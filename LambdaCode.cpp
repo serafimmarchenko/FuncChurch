@@ -10,47 +10,63 @@ enum class TT {
 	Var = 1,
 	Const = 2,
 	nameFunc = 3,
-	Func = 4,
+
+	Apply = 4,
 	newFunc = 5,
-	setFunc = 6
+	setFunc = 6,
+
+	Oper = 7,
+	Name = 8
 };
 
 class mTerm{
 	public:
 		string name;
-		
-		mTerm(string name) : name (name) {};
+		TT type;
+		mTerm(string name, TT type) : name {name}, type{type} {};
 };
-map<string, mTerm*> terms;
 
-class mToken : public mTerm{
+class mOper : public mTerm {
 	public:
 		TT type;
 		vector<mTerm> args;
 		mToken(string name, TT type) : mTerm::mTerm(name), type(type) {};
 };
 
-class Func : public mTerm{
+class Func : {
 	public:
 		static string setName = "";
-		vector<mTerm*> fargs;
+		string name;
+		vector<mTerm*> args;
 		mToken body;
 		Func(string name, vector<mTerm> args, mToken body) : mTerm(name), fargs(args), body(body) {};
-		string call(vector<mTerm*> args);
 };
 
-vector<mToken> lexer(string code) {//Here will be code.
-	vector<mToken> res;
+vector<mToken> lexer(string code) {
+	vector<mTerm> res;
 	string word = "";
 	TT type = TT::Undef;
 	for (char c : code) {
-		if (isdigit(c)) {
-			num = num*10+(c-'0');
-			type
+		if (c == ' ' && word.size()) {
+			if (word == "=") {
+				res.push_back(res.back());
+			}
+			else
+				res.push_back(mTerm(word, type));
+			continue;
 		}
-		else if (c == 'L' && word == "") {
-			type = TT::newFunc;
-		}
+		else if (c == ' ')
+			continue;
+		
+		word += c;
+		if (type)
+			continue;
+		else if (isdigit(c))
+			type = TT::Const;
+		else if (isalpha(c))
+			type = TT::Name;
+		else 
+			type = TT::Oper;
 	}
 	return res;
 }
@@ -73,16 +89,14 @@ mToken* put_args(Func* f, *vector<mTerm> args) {
 	return new_body;
 }
 
-mToken run(mToken* token, vector<Func>* funcs) {
+mToken run(mToken* token, vector<Func>* funcs) {// Correct it!
 	switch(token->type){
-		case TT::Func:
+		case TT::Apply:
 			token = static_cast<Func*>(token);
 			for(mTerm& a : token->args) {
 				if (a.type = TT::Var)
 					continue;
 				else if (a.type = TT::Const)
-					continue;
-				else if (a.type = TT::Func)
 					continue;
 				else if (a.type = TT::nameFunc)
 					continue;
