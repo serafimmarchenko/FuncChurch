@@ -25,6 +25,7 @@ class mTerm{
 		TT type;
 		mTerm(string name, TT type) : name {name}, type{type} {};
 };
+//map<string, mTerm> terms{}; I'm not sure that it is needed.
 
 class mOper : public mTerm {
 	public:
@@ -37,9 +38,9 @@ class Func : {
 	public:
 		static string setName = "";
 		string name;
-		vector<mTerm*> args;
-		mToken body;
-		Func(string name, vector<mTerm> args, mToken body) : mTerm(name), fargs(args), body(body) {};
+		vector<mTerm> args;
+		vector<mTerm> body;
+		Func(string name, vector<mTerm> args, mOper body) : mTerm(name), fargs(args), body(body) {};
 };
 
 vector<mToken> lexer(string code) {
@@ -48,9 +49,10 @@ vector<mToken> lexer(string code) {
 	TT type = TT::Undef;
 	for (char c : code) {
 		if (c == ' ' && word.size()) {
-			if (word == "=") {
-				res.push_back(res.back());
-			}
+			if (word == "=")
+				res.push_back(mTerm("=", TT::Oper));
+			if (word == ":")
+				res.push_back(mTerm(":", TT::Oper));
 			else
 				res.push_back(mTerm(word, type));
 			continue;
@@ -79,17 +81,24 @@ mToken parse(vector<mToken> code) {//Here will be code.
 	return res;
 }
 
-mToken* put_args(Func* f, *vector<mTerm> args) {
-	map<mTerm, mTerm> replace;
+mToken* put_args(Func* f, vector<mTerm>* args) {
+	map<string, mTerm> replace;
 	for (int i = 0; i < f->args.size(); ++i) {
-		replace[f->fargs[i].name] = (*args)[i].name;
+		replace[f->fargs[i].name] = (*args)[i];
 	}
-	mToken new_body = f->body;
+	vector<mTerm>* exe_mod = new vector<mTerm>(f->body);// Is it work?
 	//Here will be code for replacing names of arguments with args.
-	return new_body;
+	for (int i = 0; i < exe_mod->size(); ++i) {
+		if (replace.find(*exe_mod[i].name) == replace.end())
+			continue;
+		else {
+			*exe_mod[i] = replace[*exe_mod[i].name];
+		}
+	}
+	return exe_mod;
 }
 
-mToken run(mToken* token, vector<Func>* funcs) {// Correct it!
+mToken run(mToken* token, vector<Func>* funcs) { // Correct it because of new architecture!
 	switch(token->type){
 		case TT::Apply:
 			token = static_cast<Func*>(token);
