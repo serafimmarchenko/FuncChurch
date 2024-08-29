@@ -98,8 +98,10 @@ mToken* put_args(Func* f, vector<mTerm>* args) {
 	return exe_mod;
 }
 
-mToken run(mToken* token, vector<Func>* funcs) { // Correct it because of new architecture!
-	switch(token->type){
+mTerm run(mOper* code, vector<Func>* funcs) { // Correct it because of new architecture!
+	vector<mOper*> stackOfTasks;
+	mOper* cur = code;
+	switch(cur->type){
 		case TT::Apply:
 			token = static_cast<Func*>(token);
 			for(mTerm& a : token->args) {
